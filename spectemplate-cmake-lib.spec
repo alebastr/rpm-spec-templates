@@ -13,7 +13,7 @@ License:
 URL:            https://github.com/{{author}}/%{name}
 Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-BuildRequires:  cmake >= 3.0
+BuildRequires:  cmake >= 3.13
 BuildRequires:  gcc-c++
 BuildRequires:  make
 
@@ -36,27 +36,34 @@ developing applications that use %{name}.
 
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/CMake/
 %build
-%cmake .
-%make_build
+%cmake -S . -B %{_vpath_builddir}
+%make_build -C %{_vpath_builddir}
 
 
 %install
-%make_install
+%make_install -C %{_vpath_builddir}
+# Fedora discourages usage and packaging of static libraries
+# https://docs.fedoraproject.org/en-US/packaging-guidelines/#packaging-static-libraries
+#find %{buildroot}%{_libdir} -name *.a -exec rm
+
+%check
+pushd %{_vpath_builddir}
+ctest
+popd
+
 
 # split files between base and -devel packages
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/#_devel_packages
 %files
 %license LICENSE 
 %doc README.md
-%{_libdir}/*.so.%{abi_ver}*
+%{_libdir}/lib%{name}.so.%{abi_ver}*
 
 %files devel
-%{_includedir}/*
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/*.pc
-# Fedora discourages usage and packaging of static libraries
-# https://docs.fedoraproject.org/en-US/packaging-guidelines/#packaging-static-libraries
-%exclude %{_libdir}/*.a
+%{_includedir}/%{name}/
+%{_libdir}/lib%{name}.so
+%{_libdir}/cmake/%{name}/
+%{_libdir}/pkgconfig/%{name}.pc
 
 
 %changelog
