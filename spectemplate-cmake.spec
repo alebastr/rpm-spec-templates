@@ -1,4 +1,6 @@
 # template for binary from github built with CMake
+%undefine       _cmake_in_source_build
+
 Name:           
 Version:        
 Release:        1%{?dist}
@@ -8,9 +10,8 @@ License:
 URL:            https://github.com/{{author}}/%{name}
 Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-BuildRequires:  cmake >= 3.13
+BuildRequires:  cmake
 BuildRequires:  gcc-c++
-BuildRequires:  make
 
 %description
 %{summary}.
@@ -22,17 +23,17 @@ BuildRequires:  make
 
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/CMake/
 %build
-%cmake -S . -B %{_vpath_builddir}
-%make_build -C %{_vpath_builddir}
+%cmake
+%cmake_build
 
 
 %install
-%make_install -C %{_vpath_builddir}
+%cmake_install
+
 
 %check
-pushd %{_vpath_builddir}
-ctest
-popd
+%ctest
+
 
 %files
 %license LICENSE 
